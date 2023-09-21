@@ -76,7 +76,7 @@ class Register(generic.View):
             print(messages)
             return render(request,'register.html')
         else:
-            User.objects.create(username=email,first_name=first_name, email=email,last_name=last_name, password=password)
+            User.objects.create_user(username=email,first_name=first_name, email=email,last_name=last_name, password=password)
             return render(request,'login.html')
 
 
@@ -97,8 +97,9 @@ class Dashboard(generic.View):
             print(id_li,"===========lllllkkk")
             img_query = MyFiles.objects.filter(parent_folder__in = id_li )
             img_df = pd.DataFrame(img_query.values())
-            img_df['file_url'] = img_df['file'].apply(lambda x :f"{request.scheme}://" +f"{request.get_host()}/media/{x}")
-            print(img_df, "=====>===>",request.scheme)
+            if img_query:
+                img_df['file_url'] = img_df['file'].apply(lambda x :f"{request.scheme}://" +f"{request.get_host()}/media/{x}")
+                print(img_df, "=====>===>",request.scheme)
                     # print(df)
                     
         
@@ -191,9 +192,8 @@ class FolderMgt(generic.View):
             try:
                 os.mkdir(path,mode)
             except:
-                print(folderid,"=======folderid")
                 
-                query = f"SELECT name FROM folder WHERE parent_folder_id < {folderid};"
+                query = f"SELECT name FROM folder WHERE parent_folder_id < {folderid} and user_id = {request.user.id};"
                 query_1st = f"SELECT name FROM folder WHERE user_id = {request.user.id};"
                 with connection.cursor() as cursor:
                     cursor.execute(query_1st)
@@ -201,9 +201,10 @@ class FolderMgt(generic.View):
                 with connection.cursor() as cursor:
                     cursor.execute(query)
                     row = cursor.fetchall()
-                    path_nest =[i[0]for i in row]
-                    paths = path_nest if path_nest else row1[0][0]
-                print(f"{path}/{'/'.join(paths)}/", "========>")
+                    path_nest = [i[0]for i in row]
+                    paths = path_nest if path_nest else row1[0]
+                print(path_nest,"=======folderid",row)
+                print(f"{path}/{'/'.join(paths)}/", "========>",paths)
                 os.mkdir(f"{path}/{'/'.join(paths)}/{folder_name}",mode)
                 # print(a=9)
                 folder = Folder()
@@ -229,7 +230,7 @@ def upload_file(request):
         yourfile = request.FILES.getlist('yourfile')
         folderid = request.POST.get('folderid')
         print(yourfile,"====>=>>", folderid )
-        res = Folder.objects.filter(id__gt = folderid).values_list('id', flat=True)
+        res = Folder.objects.filter(id__gte = folderid).values_list('id', flat=True)
         for img in yourfile:
             print(img,"=====", folderid)
             imgs = MyFiles()
