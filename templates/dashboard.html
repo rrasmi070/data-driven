@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dash Board{% endblock title %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/dashboard">Navbar</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+
+    </ul>
+    <div class="form-inline my-2 my-lg-0">
+      <span>Welcom {{request.user.first_name}} </span>
+      </span>
+      <a href="{% url 'logout' %}"> Logout</a>
+    </div>
+  </div>
+</nav>
+<br />
+<div class="container">
+  <!-- image/icons8-new-folder-48.png -->
+  <div class="row">
+    <img src="{% static 'image/icons8-new-folder-48.png' %}" id="create_folder" data-toggle="modal"
+    data-target="#popupForm" onclick="getObjId()" class="mr-4" alt="">
+    
+    <!-- <form action="{% url 'file_upload' %}" method="post" enctype="multipart/form-data">
+      <input type="file" name="yourfile"  >
+      <input type="hidden" id="folderid" name="folderid">
+      <button type="submit" id="folderid" class="btn btn-secondary">Uplod</button>
+    </form> -->
+  </div><br>
+
+    {% for i in user %}
+      <a href="/show_folder/{{i.id}}" id='add'>
+        <!-- <button type="button"> {{i.name}} </button> -->
+        <div style="display: flex; align-items: center;">
+
+          <img src="{% static 'image/folder.png' %}" alt=""><br>
+          <span>{{i.name}}</span>
+        </div>
+        </a>
+      <!-- <input type="hidden" id="res" value = "{{i}}"> -->
+    {% endfor %}
+      <!-- <button class="morefolders" ></button> -->
+</div>
+
+<div class="modal fade" id="popupForm" tabindex="-1" role="dialog" aria-labelledby="popupFormLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="popupFormLabel">Create Folder</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Form fields go here -->
+        <form action="mgt_folder" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="name">Folder Name:</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+            <input type="hidden" class="form-control" id="hidden_folder_create" name="folderid">
+            
+          </div>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let hidden_field = document.getElementById('folderid')
+  let hidden_folder_create = document.getElementById('hidden_folder_create')
+
+  //console.log( re , 'json')
+  function getObjId(data){
+    hidden_field.setAttribute('value', 0);
+    hidden_folder_create.setAttribute('value', param);
+    
+    
+    //const obj = JSON.parse(res)
+    //let res_json = JSON.parse(ress)
+    //alert('working')
+    //console.log(param , hidden_field , 'check')
+  
+  }
+</script>
+
+
+{% endblock body %}
+
+{% block js %}
+
+
+{% endblock js %}

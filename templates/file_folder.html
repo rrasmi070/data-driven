@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dash Board{% endblock title %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/dashboard">Navbar</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+
+    </ul>
+    <div class="form-inline my-2 my-lg-0">
+      <span>Welcom {{request.user.first_name}} </span>
+      </span>
+      <a href="{% url 'logout' %}"> Logout</a>
+    </div>
+  </div>
+</nav>
+<br />
+<div class="container">
+  <!-- image/icons8-new-folder-48.png -->
+  <!-- {{user}} -->
+  <div class="row">
+
+    <img src="{% static 'image/icons8-new-folder-48.png' %}" id="create_folder" data-toggle="modal"
+    data-target="#popupForm" onclick="getObjId()" class="mr-4" alt="">
+    <form action="{% url 'file_upload' %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="yourfile">
+      <input type="hidden" id="folderid" name="folderid">
+      <button type="submit" class="btn btn-secondary">Upload</button>
+    </form>
+  </div>
+  <br>
+    {% for i in user %}
+      <a href="/show_folder/{{i.id}}" id='add'>
+        <!-- <button type="button"> {{i.name}} </button> -->
+        <div style="display: flex; align-items: center;">
+
+          <img src="{% static 'image/folder.png' %}" alt=""><br>
+          <span>{{i.name}}</span>
+          <br/>
+        </div>
+      </a>
+      <!-- <input type="hidden" id="res" value = "{{i}}"> -->
+      {% endfor %}
+
+
+      
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">SL. No.</th>
+            <th scope="col">FILE</th>
+            <th scope="col">UPDATE</th>
+            <th scope="col">DELETE</th>
+          </tr>
+        </thead>
+        {% for fil in user %}
+        {% for i in fil.files %}
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td><a href="{{i.file_url}}">{{i.file}}</a></td>
+            <td>
+              <a href="" data-toggle="modal" data-target="#exampleModal" onclick="fileUpdate('{{i.id}}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                  <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001z"/>
+                </svg>
+              </a>
+            </td>
+            <td>
+              <a href="/file_delete/{{i.id}}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                </svg>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+        {% endfor %}
+        {% endfor %}
+      </table>
+      
+      
+      <br/>
+      <!-- <button class="morefolders" ></button> -->
+</div>
+
+<div class="modal fade" id="popupForm" tabindex="-1" role="dialog" aria-labelledby="popupFormLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="popupFormLabel">Create Folder</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Form fields go here -->
+        <form action="{% url 'mgt_folder' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="name">Folder Name:</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+            <input type="hidden" class="form-control" id="hidden_folder_create" name="folderid">
+          </div>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- Button trigger modal -->
+<!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Launch demo modal
+</button> -->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{% url "file_update" %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %} 
+        <div class="modal-body">
+          <input type="file" name="update_file" id="update_file">
+          <input type="hidden" id = "pid" name="pid">
+          <input type="hidden" id = "old_file" name="old_file">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  let btn = document.getElementsByClassName('add');
+  let data = '{{user}}';
+  let hidden_field = document.getElementById('folderid')
+  let hidden_folder_create = document.getElementById('hidden_folder_create')
+  //console.log( re , 'json')
+  let param1 = window.location.pathname ? window.location.pathname.split('/')[2] : 0;
+  console.log(param1,"========kkk")
+  hidden_field.setAttribute('value', param1);
+
+  //console.log(  data, 'new btn')
+  function getObjId(data){
+    let param = window.location.pathname ? window.location.pathname.split('/')[2] : 0;
+    if(param || param1){
+      hidden_folder_create.setAttribute('value', param);
+      hidden_field.innerText = param; 
+    }else{
+      hidden_field.setAttribute('value', 0);
+    }
+    
+    //const obj = JSON.parse(res)
+    //let res_json = JSON.parse(ress)
+    //alert('working')
+    console.log(param ,"====", hidden_field , 'check')
+  
+  }
+
+
+  let pid = document.getElementById('pid');
+
+  function fileUpdate(data){
+    console.log(data,"====", "hidden_field")
+    pid.setAttribute('value', data);
+  }
+
+</script>
+
+
+{% endblock body %}
+
+{% block js %}
+
+
+{% endblock js %}
